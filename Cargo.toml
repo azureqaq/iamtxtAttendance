@@ -1,9 +1,9 @@
 [package]
-name = "cli_demo"
+name = "iamtxt"
 version = "0.1.0"
 edition = "2021"
-description = "a tool for cli_demo"
-default-run = "cli_demo"
+description = "a tool for iamtxt"
+default-run = "iamtxt"
 readme = "README.md"
 authors = ["AzureQAQ <azureqaq@gmail.com>"]
 license = "MIT OR Apache-2.0"
@@ -20,21 +20,21 @@ path = "./src/libs/mod.rs"
 
 [dependencies]
 log = "0"
-indicatif = "0"
-console = "0"
-dialoguer = "0"
-scraper = "0"
-clap = {version = "3", features = ["wrap_help", "std", "color", "suggestions", "cargo"], default-features = false }
+# indicatif = "0"
+# console = "0"
+# dialoguer = "0"
+# scraper = "0"
+# clap = {version = "3", features = ["wrap_help", "std", "color", "suggestions", "cargo"], default-features = false }
 serde = {version = "*", features = ["derive"] }
 toml = "0"
 platform-dirs = "0"
-reqwest_cookie_store = "0"
+# reqwest_cookie_store = "0"
 serde_json = "1"
-tokio = { version = "1", features = ["rt-multi-thread", "time", "process", "macros", "parking_lot", "sync", "io-util", "fs"], default-features = false }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "parking_lot"], default-features = false }
 reqwest = { version = "0", features = ["cookies", "json"] }
 anyhow = "1"
-regex = { version = "1", features = ["std"] }
-ahash = { version = "*", features = ["std", "compile-time-rng"] }
+# regex = { version = "1", features = ["std"] }
+ahash = { version = "*", features = ["std", "compile-time-rng", "serde"] }
 
 [dependencies.simple_logger]
 version = "2"

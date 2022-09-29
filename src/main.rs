@@ -6,16 +6,21 @@ async fn main() {
     SimpleLogger::new()
         .with_colors(true)
         .with_level(log::LevelFilter::Debug)
+        .with_module_level("reqwest", log::LevelFilter::Error)
+        .with_module_level("cookie_store", log::LevelFilter::Error)
+        // .with_module_level("reqwest", log::LevelFilter::Error)
+        // .with_module_level("reqwest", log::LevelFilter::Error)
         .init()
         .unwrap();
 
-    log::debug!("Hello, Word!");
     match mma().await {
-        Ok(_) => log::debug!("Good!"),
+        Ok(_) => log::debug!("Done!"),
         Err(e) => log::error!("Error: {}", e),
     }
 }
 
 async fn mma() -> Result<()> {
+    let conf = libs::config::get_config("./config_local.toml")?;
+    libs::bot::att_now_all(conf).await?;
     Ok(())
 }
