@@ -9,22 +9,6 @@ use std::io::Write;
 
 pub type StatusFile = ahash::AHashMap<String, (String, bool)>;
 
-// #[derive(Serialize, Deserialize)]
-// pub struct Status {
-//     date_time: String,
-//     status: bool
-// }
-
-// impl Status {
-//     pub fn status(&self) -> bool {
-//         self.status
-//     }
-
-//     pub fn date_time(&self) -> &str {
-//         &self.date_time
-//     }
-// }
-
 pub fn get_status(path: impl AsRef<Path>) -> Result<StatusFile> {
     let path = path.as_ref();
     if path.is_file() {

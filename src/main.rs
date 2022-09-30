@@ -44,7 +44,7 @@ async fn mma() -> Result<()> {
         )
         .subcommand(
             Command::new("att")
-                .about("签到")
+                .about("attendance")
                 .short_flag('a')
                 .long_flag("att")
                 .arg_required_else_help(true)
@@ -54,6 +54,13 @@ async fn mma() -> Result<()> {
                         .long("now")
                         .action(clap::ArgAction::SetTrue)
                         .takes_value(false),
+                )
+                .arg(
+                    Arg::new("run")
+                        .long("run")
+                        .action(clap::ArgAction::SetTrue)
+                        .takes_value(true)
+                        .conflicts_with("now"),
                 ),
         )
         .get_matches();
@@ -75,6 +82,8 @@ async fn mma() -> Result<()> {
                 if att_sub.get_flag("now") {
                     let config = libs::config::get_config(botdirs.config_path())?;
                     libs::bot::att_now_all(config, status.clone()).await?;
+                } else if att_sub.get_flag("run") {
+                    // 一直运行
                 } else {
                 }
             }

@@ -56,10 +56,6 @@ impl Session {
             .send()
             .await?;
 
-        // if !res.text().await?.contains(self.userconf.name()) {
-        //     return Err(anyhow!("登陆失败！ {}", self.userconf.name()));
-        // }
-
         Ok(())
     }
 
@@ -76,7 +72,9 @@ impl Session {
             .send()
             .await?;
         let text = res.text().await?;
-        log::debug!("{} 签到结果: {}", self.userconf.name(), &text);
+        log::info!(r#"签到结果[{}]: "{}""#, self.userconf.name(), &text);
+
+        // 更新状态
         {
             if text.contains("随机") || text.contains("今天已经") {
                 let today = time::OffsetDateTime::now_local()?.date().to_string();
@@ -85,7 +83,7 @@ impl Session {
             } else if text.contains("nolog") {
                 log::warn!("{}, 登陆失败!", self.userconf.name());
             } else {
-                log::warn!("未处理的情: {}", text);
+                log::warn!("未处理的情况: {}", text);
             }
         }
         Ok(())
@@ -130,4 +128,8 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
     }
 
     Ok(())
+}
+
+pub async fn att_times(_config: Config, _status: Arc<Mutex<StatusFile>>) -> Result<()> {
+    Err(anyhow!("unimplemented!"))
 }
