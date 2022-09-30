@@ -1,8 +1,14 @@
-use crate::config::{Config, UserConf};
+use crate::{
+    config::{Config, UserConf},
+    status::StatusFile,
+};
 use anyhow::{anyhow, Result};
 use reqwest::{cookie::Jar, header, Client, ClientBuilder};
 use serde_json::json;
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 pub struct Session {
     client: Client,
@@ -58,7 +64,7 @@ impl Session {
     }
 
     /// 登陆后 签到一次
-    pub async fn att_once(&self) -> Result<()> {
+    async fn att_once(&self, status: Arc<Mutex<StatusFile>>) -> Result<()> {
         // https://www.iamtxt.com/e/extend/signin.php
         let res = self
             .client
@@ -69,6 +75,15 @@ impl Session {
             .send()
             .await?;
         log::debug!("{} 签到结果: {}", self.userconf.name(), res.text().await?);
+        {
+            let mut lock = status.lock().unwrap();
+            let res = lock.get(self.userconf.name());
+            if res.is_none() {
+                lock.insert(self.userconf.name().into(), ("today".into(), true));
+            } else {
+                todo!()
+            }
+        }
         Ok(())
     }
 }
@@ -79,15 +94,19 @@ pub fn get_session(userconf: UserConf) -> Session {
     ss
 }
 
-pub async fn att_now_all(config: Config) -> Result<()> {
+pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Result<()> {
     let mut result = vec![];
     for (_, userconf) in config.into_iter() {
+        if !userconf.enable() {
+            continue;
+        }
+        let status = status.clone();
         result.push(tokio::spawn(async move {
             let ss = get_session(userconf);
             if let Err(e) = ss.login().await {
                 return Err(anyhow!("can't login: {}, error: {}", ss.userconf.name(), e));
             }
-            if let Err(e) = ss.att_once().await {
+            if let Err(e) = ss.att_once(status).await {
                 return Err(anyhow!("can't att: {}, error: {}", ss.userconf.name(), e));
             }
             Ok(())

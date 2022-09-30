@@ -1,4 +1,8 @@
+use std::sync::{Arc, Mutex};
+
 use anyhow::Result;
+use clap::{crate_authors, crate_name, crate_version, Arg, Command};
+use libs::{botdir::BotDirs, status::get_status};
 use simple_logger::SimpleLogger;
 
 #[tokio::main]
@@ -20,7 +24,64 @@ async fn main() {
 }
 
 async fn mma() -> Result<()> {
-    let conf = libs::config::get_config("./config_local.toml")?;
-    libs::bot::att_now_all(conf).await?;
+    let mat = Command::new(crate_name!())
+        .about("iamtxt.com tool")
+        .version(crate_version!())
+        .author(crate_authors!())
+        .arg_required_else_help(true)
+        .args_conflicts_with_subcommands(true)
+        .arg(
+            Arg::new("uninstall")
+                .long("uninstall")
+                .action(clap::ArgAction::SetTrue)
+                .takes_value(false),
+        )
+        .arg(
+            Arg::new("init")
+                .long("init")
+                .action(clap::ArgAction::SetTrue)
+                .takes_value(false),
+        )
+        .subcommand(
+            Command::new("att")
+                .about("签到")
+                .short_flag('a')
+                .long_flag("att")
+                .arg_required_else_help(true)
+                .args_conflicts_with_subcommands(true)
+                .arg(
+                    Arg::new("now")
+                        .long("now")
+                        .action(clap::ArgAction::SetTrue)
+                        .takes_value(false),
+                ),
+        )
+        .get_matches();
+
+    let botdirs = BotDirs::new()?;
+    // let config = libs::config::get_config(botdirs.config_path())?;
+
+    if mat.get_flag("uninstall") {
+        log::info!("uninstalling...");
+        botdirs.uninstall()?;
+    } else if mat.get_flag("init") {
+        botdirs.init()?;
+        let _stat = libs::status::get_status(botdirs.status_path())?;
+        let _config = libs::config::get_config(botdirs.config_path())?;
+    } else {
+        let status = Arc::new(Mutex::new(get_status(botdirs.status_path())?));
+        match mat.subcommand() {
+            Some(("att", att_sub)) => {
+                if att_sub.get_flag("now") {
+                    let config = libs::config::get_config(botdirs.config_path())?;
+                    libs::bot::att_now_all(config, status.clone()).await?;
+                } else {
+                }
+            }
+            _ => {}
+        }
+        libs::status::save_status(status, botdirs.status_path())?;
+    }
+
     Ok(())
 }
