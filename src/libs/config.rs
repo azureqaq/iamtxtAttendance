@@ -1,4 +1,4 @@
-#![allow(unused)]
+// #![allow(unused)]
 use ahash::AHashMap;
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
@@ -8,6 +8,7 @@ use std::{
     path::Path,
 };
 
+/// 配置文件
 pub type Config = AHashMap<String, UserConf>;
 
 /// 用户配置
@@ -72,6 +73,7 @@ impl Default for UserConf {
     }
 }
 
+/// 读取配置文件，如果不存在就新建一个默认的
 pub fn get_config(path: impl AsRef<Path>) -> Result<Config> {
     let path = path.as_ref();
     if path.is_file() {
