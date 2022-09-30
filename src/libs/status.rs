@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 // use serde::{Serialize, Deserialize};
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use std::io::Write;
 
 pub type StatusFile = ahash::AHashMap<String, (String, bool)>;
@@ -29,7 +29,10 @@ pub fn get_status(path: impl AsRef<Path>) -> Result<StatusFile> {
     let path = path.as_ref();
     if path.is_file() {
         let content = read_to_string(path)?;
-        let content: StatusFile = serde_json::from_str(&content)?;
+        let content: StatusFile = serde_json::from_str(&content).context(anyhow!(
+            "无法解析!, 可以尝试删除文件后重试: {}",
+            path.display()
+        ))?;
         return Ok(content);
     } else {
         let content = StatusFile::new();

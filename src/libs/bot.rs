@@ -38,7 +38,7 @@ impl Session {
     }
 
     /// 登录
-    pub async fn login(&self) -> Result<()> {
+    async fn login(&self) -> Result<()> {
         let _res = self
             .client
             .post("https://www.iamtxt.com/e/member/doaction.php")
@@ -63,7 +63,8 @@ impl Session {
         Ok(())
     }
 
-    /// 登陆后 签到一次
+    /// 登陆后 签到一次 是否签到应该在调用前判断 此不包括 login
+    /// 并更新状态
     async fn att_once(&self, status: Arc<Mutex<StatusFile>>) -> Result<()> {
         // https://www.iamtxt.com/e/extend/signin.php
         let res = self
@@ -74,14 +75,17 @@ impl Session {
             }))
             .send()
             .await?;
-        log::debug!("{} 签到结果: {}", self.userconf.name(), res.text().await?);
+        let text = res.text().await?;
+        log::debug!("{} 签到结果: {}", self.userconf.name(), &text);
         {
-            let mut lock = status.lock().unwrap();
-            let res = lock.get(self.userconf.name());
-            if res.is_none() {
-                lock.insert(self.userconf.name().into(), ("today".into(), true));
+            if text.contains("随机") || text.contains("今天已经") {
+                let today = time::OffsetDateTime::now_local()?.date().to_string();
+                let mut lock = status.lock().unwrap();
+                lock.insert(self.userconf.name().into(), (today, true));
+            } else if text.contains("nolog") {
+                log::warn!("{}, 登陆失败!", self.userconf.name());
             } else {
-                todo!()
+                log::warn!("未处理的情: {}", text);
             }
         }
         Ok(())
@@ -97,7 +101,7 @@ pub fn get_session(userconf: UserConf) -> Session {
 pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Result<()> {
     let mut result = vec![];
     for (_, userconf) in config.into_iter() {
-        if !userconf.enable() {
+        if !userconf.need_att(status.clone()) {
             continue;
         }
         let status = status.clone();

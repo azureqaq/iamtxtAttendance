@@ -3,10 +3,13 @@ use ahash::AHashMap;
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::io::Write;
+use std::sync::{Arc, Mutex};
 use std::{
     fs::{read_to_string, File},
     path::Path,
 };
+
+use crate::status::StatusFile;
 
 /// 配置文件
 pub type Config = AHashMap<String, UserConf>;
@@ -51,11 +54,41 @@ impl UserConf {
         self.enable
     }
 
-    pub fn time(&self) -> &str {
+    pub fn time_str(&self) -> &str {
         match &self.time {
             None => "00:00",
             Some(s) => s,
         }
+    }
+
+    pub fn time(&self) -> Result<time::Time> {
+        to_time_conf(self.time_str())
+    }
+
+    pub fn need_att(&self, stat: Arc<Mutex<StatusFile>>) -> bool {
+        let lock = stat.lock().unwrap();
+        let stat = lock.get(self.name());
+        if stat.is_none() && self.enable() {
+            return true;
+        } else if stat.is_some() && self.enable() {
+            let stat = stat.unwrap();
+            if !stat.1 {
+                return true;
+            } else {
+                let date = time::Date::parse(
+                    &stat.0,
+                    &time::format_description::parse("[year]-[month]-[day]").unwrap(),
+                );
+                if date.is_err() {
+                    return true;
+                } else {
+                    let date = date.unwrap();
+                    let today = time::OffsetDateTime::now_local().unwrap().date();
+                    return today != date;
+                }
+            }
+        }
+        true
     }
 }
 
@@ -71,6 +104,22 @@ impl Default for UserConf {
             time: Some("00:09".into()),
         }
     }
+}
+
+/// 转换
+pub fn to_time_conf(con: &str) -> Result<time::Time> {
+    Ok(time::Time::parse(
+        con,
+        &time::format_description::parse("[hour]:[minute]:[second]").unwrap(),
+    )?)
+}
+
+/// 转换
+pub fn to_time_stat(con: &str) -> Result<time::Time> {
+    Ok(time::Time::parse(
+        con,
+        &time::format_description::parse("[year]-[month]-[day]").unwrap(),
+    )?)
 }
 
 /// 读取配置文件，如果不存在就新建一个默认的
