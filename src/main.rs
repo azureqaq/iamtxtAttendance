@@ -42,18 +42,20 @@ async fn mma() -> Result<()> {
                 .long("init")
                 .help("初始化")
                 .action(clap::ArgAction::SetTrue)
-                .takes_value(false),
+                .takes_value(false)
+                .conflicts_with("uninstall"),
         )
         .arg(
             Arg::new("clean")
                 .long("clean")
                 .help("清理垃圾")
                 .action(clap::ArgAction::SetTrue)
-                .takes_value(false),
+                .takes_value(false)
+                .conflicts_with_all(&["uninstall", "init"]),
         )
         .subcommand(
             Command::new("att")
-                .about("attendance")
+                .about("签到")
                 .short_flag('a')
                 .long_flag("att")
                 .arg_required_else_help(true)
@@ -61,12 +63,14 @@ async fn mma() -> Result<()> {
                 .arg(
                     Arg::new("now")
                         .long("now")
+                        .help("现在签到")
                         .action(clap::ArgAction::SetTrue)
                         .takes_value(false),
                 )
                 .arg(
                     Arg::new("run")
                         .long("run")
+                        .help("保持运行")
                         .action(clap::ArgAction::SetTrue)
                         .takes_value(true)
                         .conflicts_with("now"),
@@ -81,10 +85,11 @@ async fn mma() -> Result<()> {
         log::info!("uninstalling...");
         botdirs.uninstall()?;
     } else if mat.get_flag("clean") {
-        let mut stat = libs::status::get_status(botdirs.status_path())?;
+        let stat = libs::status::get_status(botdirs.status_path())?;
+        let stat = Arc::new(Mutex::new(stat));
         let config = libs::config::get_config(botdirs.config_path())?;
-        libs::bot::clean_stat(&mut stat, config)?;
-        libs::status::save_status(Arc::new(Mutex::new(stat)), botdirs.status_path())?;
+        libs::bot::clean_stat(stat.clone(), config)?;
+        libs::status::save_status(stat, botdirs.status_path())?;
     } else if mat.get_flag("init") {
         botdirs.init()?;
         let _stat = libs::status::get_status(botdirs.status_path())?;
