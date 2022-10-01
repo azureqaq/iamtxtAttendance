@@ -103,6 +103,7 @@ async fn mma() -> Result<()> {
                     libs::bot::att_now_all(config, status.clone()).await?;
                 } else if att_sub.get_flag("run") {
                     // 一直运行
+                    return Err(anyhow::anyhow!("unimplemented!"));
                 } else {
                 }
             }
