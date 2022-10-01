@@ -72,21 +72,46 @@ impl Session {
             .send()
             .await?;
         let text = res.text().await?;
-        log::info!(r#"签到结果[{}]: "{}""#, self.userconf.name(), &text);
+        // log::debug!(r#"签到结果[{}]: "{}""#, self.userconf.name(), &text);
 
         // 更新状态
         {
-            if text.contains("随机") || text.contains("今天已经") {
+            if text.contains("已连签") || text.contains("今天已经") {
                 let today = time::OffsetDateTime::now_local()?.date().to_string();
                 let mut lock = status.lock().unwrap();
                 lock.insert(self.userconf.name().into(), (today, true));
+                return Ok(());
             } else if text.contains("nolog") {
-                log::warn!("{}, 登陆失败!", self.userconf.name());
+                // log::warn!("{}, 登陆失败!", self.userconf.name());
+                return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
             } else {
-                log::warn!("未处理的情况: {}", text);
+                // log::warn!("未处理的情况: {}", text);
+                return Err(anyhow!("未处理的情况: {}", text));
             }
         }
-        Ok(())
+    }
+
+    /// 尝试几次
+    async fn att_times(&self, status: Arc<Mutex<StatusFile>>) -> Result<()> {
+        for i in 0..self.userconf.retry_times() {
+            let status = status.clone();
+            match self.att_once(status).await {
+                Ok(_) => {
+                    log::info!("签到成功！{}", self.userconf.name());
+                    return Ok(());
+                }
+                Err(e) => {
+                    log::debug!(
+                        "第{}/{}次尝试签到失败, error: {}",
+                        i + 1,
+                        self.userconf.retry_times(),
+                        e
+                    );
+                    continue;
+                }
+            }
+        }
+        return Err(anyhow!("{}签到失败", self.userconf.name()));
     }
 }
 
@@ -106,10 +131,10 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
         result.push(tokio::spawn(async move {
             let ss = get_session(userconf);
             if let Err(e) = ss.login().await {
-                return Err(anyhow!("can't login: {}, error: {}", ss.userconf.name(), e));
+                return Err(anyhow!("登陆失败: {}, 错误: {}", ss.userconf.name(), e));
             }
-            if let Err(e) = ss.att_once(status).await {
-                return Err(anyhow!("can't att: {}, error: {}", ss.userconf.name(), e));
+            if let Err(e) = ss.att_times(status).await {
+                return Err(anyhow!("{}, 错误: {}", ss.userconf.name(), e));
             }
             Ok(())
         }))
@@ -122,7 +147,7 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
             continue;
         } else {
             if let Err(e) = ii.unwrap() {
-                log::error!("att error: {}", e);
+                log::error!("{}", e);
             }
         }
     }

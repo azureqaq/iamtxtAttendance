@@ -33,9 +33,9 @@ pub fn save_status(content: Arc<Mutex<StatusFile>>, path: impl AsRef<Path>) -> R
     let buf = File::create(path).map(std::io::BufWriter::new)?;
     let res = serde_json::to_writer_pretty(buf, &content);
     if let Err(e) = res {
-        return Err(anyhow!("can't save: {}, error: {}", path.display(), e));
+        return Err(anyhow!("无法保存状态: {}, 错误: {}", path.display(), e));
     } else {
-        log::debug!("save status to: {}", path.display());
+        log::debug!("保存结果到: {}", path.display());
         Ok(())
     }
 }
