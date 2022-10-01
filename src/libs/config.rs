@@ -42,11 +42,12 @@ impl UserConf {
         &self.pwd
     }
 
-    pub fn retry_times(&self) -> Option<u8> {
+    /// 0 或者不写 就是 1
+    pub fn retry_times(&self) -> u8 {
         match self.retry_times {
-            None => None,
-            Some(0) => None,
-            Some(n) => Some(n),
+            None => 1,
+            Some(0) => 1,
+            Some(n) => n,
         }
     }
 
@@ -91,8 +92,10 @@ impl UserConf {
                     return today != date;
                 }
             }
+        } else if !self.email_enable() {
+            return false;
         }
-        true
+        false
     }
 }
 
