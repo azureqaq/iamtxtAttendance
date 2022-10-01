@@ -20,7 +20,7 @@ pub fn get_status(path: impl AsRef<Path>) -> Result<StatusFile> {
         return Ok(content);
     } else {
         let content = StatusFile::new();
-        let mut f = File::create(path)?;
+        let mut f = File::create(path).context(anyhow!("可能需要先init"))?;
         log::info!("crate file: {}", path.display());
         write!(f, "{}", serde_json::to_string(&content)?)?;
         return Ok(content);

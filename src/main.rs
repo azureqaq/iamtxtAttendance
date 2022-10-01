@@ -12,8 +12,6 @@ async fn main() {
         .with_level(log::LevelFilter::Debug)
         .with_module_level("reqwest", log::LevelFilter::Error)
         .with_module_level("cookie_store", log::LevelFilter::Error)
-        // .with_module_level("reqwest", log::LevelFilter::Error)
-        // .with_module_level("reqwest", log::LevelFilter::Error)
         .init()
         .unwrap();
 
@@ -29,7 +27,7 @@ async fn mma() -> Result<()> {
         .version(crate_version!())
         .author(crate_authors!())
         .arg_required_else_help(true)
-        .args_conflicts_with_subcommands(true)
+        .subcommand_required(false)
         .arg(
             Arg::new("uninstall")
                 .long("uninstall")
@@ -53,33 +51,18 @@ async fn mma() -> Result<()> {
                 .takes_value(false)
                 .conflicts_with_all(&["uninstall", "init"]),
         )
-        .subcommand(
-            Command::new("att")
-                .about("签到")
-                .short_flag('a')
-                .long_flag("att")
-                .arg_required_else_help(true)
-                .args_conflicts_with_subcommands(true)
-                .arg(
-                    Arg::new("now")
-                        .long("now")
-                        .help("现在签到")
-                        .action(clap::ArgAction::SetTrue)
-                        .takes_value(false),
-                )
-                .arg(
-                    Arg::new("run")
-                        .long("run")
-                        .help("保持运行")
-                        .action(clap::ArgAction::SetTrue)
-                        .takes_value(true)
-                        .conflicts_with("now"),
-                ),
+        .arg(
+            Arg::new("att")
+                .short('a')
+                .long("att")
+                .help("签到")
+                .action(clap::ArgAction::SetTrue)
+                .takes_value(false)
+                .conflicts_with_all(&["uninstall", "clean", "init"]),
         )
         .get_matches();
 
     let botdirs = BotDirs::new()?;
-    // let config = libs::config::get_config(botdirs.config_path())?;
 
     if mat.get_flag("uninstall") {
         log::info!("uninstalling...");
@@ -94,22 +77,13 @@ async fn mma() -> Result<()> {
         botdirs.init()?;
         let _stat = libs::status::get_status(botdirs.status_path())?;
         let _config = libs::config::get_config(botdirs.config_path())?;
-    } else {
+    } else if mat.get_flag("att") {
         let status = Arc::new(Mutex::new(get_status(botdirs.status_path())?));
-        match mat.subcommand() {
-            Some(("att", att_sub)) => {
-                if att_sub.get_flag("now") {
-                    let config = libs::config::get_config(botdirs.config_path())?;
-                    libs::bot::att_now_all(config, status.clone()).await?;
-                } else if att_sub.get_flag("run") {
-                    // 一直运行
-                    return Err(anyhow::anyhow!("unimplemented!"));
-                } else {
-                }
-            }
-            _ => {}
-        }
+        let config = libs::config::get_config(botdirs.config_path())?;
+        libs::bot::att_now_all(config, status.clone()).await?;
         libs::status::save_status(status, botdirs.status_path())?;
+    } else {
+        return Err(anyhow::anyhow!("unreachable!"));
     }
 
     Ok(())
