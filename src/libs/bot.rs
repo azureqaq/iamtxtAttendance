@@ -158,3 +158,14 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
 pub async fn att_times(_config: Config, _status: Arc<Mutex<StatusFile>>) -> Result<()> {
     Err(anyhow!("unimplemented!"))
 }
+
+/// 在状态文件中清理不存在的
+pub fn clean_stat(status: &mut StatusFile, config: Config) -> Result<()> {
+    for (k, v) in config.into_iter() {
+        if status.get(v.name()).is_some() {
+            status.remove(v.name());
+            log::info!("删除不需要的状态: {}-{}", k, v.name());
+        }
+    }
+    Ok(())
+}

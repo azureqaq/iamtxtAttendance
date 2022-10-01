@@ -1,6 +1,6 @@
 // #![allow(unused)]
 use ahash::AHashMap;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::sync::{Arc, Mutex};
@@ -104,7 +104,7 @@ impl Default for UserConf {
         Self {
             enable: false,
             email: Some("123@qq.com".into()),
-            email_enable: true,
+            email_enable: false,
             name: "myname".into(),
             pwd: "mypwd".into(),
             retry_times: None,
@@ -141,7 +141,7 @@ pub fn get_config(path: impl AsRef<Path>) -> Result<Config> {
         let id = "mynote".to_string();
         let user = UserConf::default();
         config.insert(id, user);
-        let mut f = File::create(path)?;
+        let mut f = File::create(path).context(anyhow!("可以尝试 init"))?;
         log::info!("crate file: {}", path.display());
         write!(f, "{}", toml::to_string(&config)?)?;
         Err(anyhow!(
