@@ -160,12 +160,28 @@ pub async fn att_times(_config: Config, _status: Arc<Mutex<StatusFile>>) -> Resu
 }
 
 /// 在状态文件中清理不存在的
-pub fn clean_stat(status: &mut StatusFile, config: Config) -> Result<()> {
-    for (k, v) in config.into_iter() {
-        if status.get(v.name()).is_some() {
-            status.remove(v.name());
-            log::info!("删除不需要的状态: {}-{}", k, v.name());
+pub fn clean_stat(status: Arc<Mutex<StatusFile>>, config: Config) -> Result<()> {
+    let mut res = vec![];
+    {
+        let status = status.lock().unwrap();
+        let ids: ahash::AHashSet<String> = config
+            .into_iter()
+            .map(|(_s, conf)| conf.name().to_owned())
+            .collect();
+        for i in status.keys() {
+            if !ids.contains(i) {
+                res.push(i.to_owned());
+            }
         }
     }
+
+    {
+        let mut status = status.lock().unwrap();
+        for i in res {
+            status.remove(&i);
+            log::debug!("删除不需要的状态: {}", i);
+        }
+    }
+
     Ok(())
 }
