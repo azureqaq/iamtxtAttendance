@@ -1,11 +1,10 @@
+use anyhow::{anyhow, Context, Result};
+use std::io::Write;
 use std::{
     fs::{read_to_string, File},
     path::Path,
     sync::{Arc, Mutex},
 };
-// use serde::{Serialize, Deserialize};
-use anyhow::{anyhow, Context, Result};
-use std::io::Write;
 
 pub type StatusFile = ahash::AHashMap<String, (String, bool)>;
 

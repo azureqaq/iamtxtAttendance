@@ -1,9 +1,8 @@
-use std::sync::{Arc, Mutex};
-
 use anyhow::Result;
 use clap::{crate_authors, crate_name, crate_version, Arg, Command};
 use libs::{botdir::BotDirs, status::get_status};
 use simple_logger::SimpleLogger;
+use std::sync::{Arc, Mutex};
 
 #[tokio::main]
 async fn main() {
