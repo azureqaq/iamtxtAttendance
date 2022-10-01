@@ -18,9 +18,14 @@ pub struct Session {
 impl Session {
     pub fn new(userconf: UserConf) -> Self {
         let mut head = header::HeaderMap::new();
-        head.insert("User-Agent", 
-        header::HeaderValue::from_static(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53"));
+        head.insert(
+            "User-Agent",
+            header::HeaderValue::from_static(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
+                AppleWebKit/537.36 (KHTML, like Gecko) \
+                Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53",
+            ),
+        );
         let client = ClientBuilder::new()
             .connect_timeout(Duration::from_secs(5))
             .timeout(Duration::from_secs(10))
