@@ -43,7 +43,11 @@ impl UserConf {
     }
 
     pub fn retry_times(&self) -> Option<u8> {
-        self.retry_times
+        match self.retry_times {
+            None => None,
+            Some(0) => None,
+            Some(n) => Some(n),
+        }
     }
 
     pub fn email_enable(&self) -> bool {
