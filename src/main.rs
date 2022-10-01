@@ -33,12 +33,21 @@ async fn mma() -> Result<()> {
         .arg(
             Arg::new("uninstall")
                 .long("uninstall")
+                .help("删除所有相关文件")
                 .action(clap::ArgAction::SetTrue)
                 .takes_value(false),
         )
         .arg(
             Arg::new("init")
                 .long("init")
+                .help("初始化")
+                .action(clap::ArgAction::SetTrue)
+                .takes_value(false),
+        )
+        .arg(
+            Arg::new("clean")
+                .long("clean")
+                .help("清理垃圾")
                 .action(clap::ArgAction::SetTrue)
                 .takes_value(false),
         )
@@ -71,6 +80,11 @@ async fn mma() -> Result<()> {
     if mat.get_flag("uninstall") {
         log::info!("uninstalling...");
         botdirs.uninstall()?;
+    } else if mat.get_flag("clean") {
+        let mut stat = libs::status::get_status(botdirs.status_path())?;
+        let config = libs::config::get_config(botdirs.config_path())?;
+        libs::bot::clean_stat(&mut stat, config)?;
+        libs::status::save_status(Arc::new(Mutex::new(stat)), botdirs.status_path())?;
     } else if mat.get_flag("init") {
         botdirs.init()?;
         let _stat = libs::status::get_status(botdirs.status_path())?;
