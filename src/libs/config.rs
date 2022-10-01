@@ -1,4 +1,4 @@
-// #![allow(unused)]
+use crate::status::StatusFile;
 use ahash::AHashMap;
 use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -8,8 +8,6 @@ use std::{
     fs::{read_to_string, File},
     path::Path,
 };
-
-use crate::status::StatusFile;
 
 /// 配置文件
 pub type Config = AHashMap<String, UserConf>;
