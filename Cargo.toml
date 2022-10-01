@@ -9,6 +9,7 @@ authors = ["AzureQAQ <azureqaq@gmail.com>"]
 license = "MIT OR Apache-2.0"
 keywords = ["cli", "bin"]
 categories = ["command-line-utilities"]
+build =  "build.rs"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -36,11 +37,7 @@ anyhow = "1"
 # regex = { version = "1", features = ["std"] }
 ahash = { version = "*", features = ["std", "compile-time-rng", "serde"] }
 time = { version = "*", features = ["local-offset"] }
-
-[dependencies.simple_logger]
-version = "2"
-default-features = false
-features = ["colors"]
+simple_logger = { version = "*", default-features = false, features = ["colors"] }
 
 [profile.release]
 opt-level = "s"
@@ -52,3 +49,6 @@ strip="debuginfo"
 [dev-dependencies]
 pretty_assertions = "1"
 
+ 
+[build-dependencies]
+embed-resource =  "1"
