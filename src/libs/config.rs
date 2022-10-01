@@ -23,14 +23,8 @@ pub struct UserConf {
     name: String,
     /// 登录密码
     pwd: String,
-    /// 签到时间
-    time: Option<String>,
     /// 重试次数
     retry_times: Option<u8>,
-    /// 是否开启邮件通知
-    email_enable: bool,
-    /// 邮件
-    email: Option<String>,
 }
 
 impl UserConf {
@@ -51,23 +45,8 @@ impl UserConf {
         }
     }
 
-    pub fn email_enable(&self) -> bool {
-        self.email.is_some() && self.email_enable
-    }
-
     pub fn enable(&self) -> bool {
         self.enable
-    }
-
-    pub fn time_str(&self) -> &str {
-        match &self.time {
-            None => "00:00",
-            Some(s) => s,
-        }
-    }
-
-    pub fn time(&self) -> Result<time::Time> {
-        to_time_conf(self.time_str())
     }
 
     pub fn need_att(&self, stat: Arc<Mutex<StatusFile>>) -> bool {
@@ -92,7 +71,7 @@ impl UserConf {
                     return today != date;
                 }
             }
-        } else if !self.email_enable() {
+        } else if !self.enable() {
             return false;
         }
         false
@@ -103,12 +82,9 @@ impl Default for UserConf {
     fn default() -> Self {
         Self {
             enable: false,
-            email: Some("123@qq.com".into()),
-            email_enable: false,
             name: "myname".into(),
             pwd: "mypwd".into(),
             retry_times: None,
-            time: Some("00:09".into()),
         }
     }
 }
