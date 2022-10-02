@@ -8,6 +8,7 @@ use std::{
     fs::{read_to_string, File},
     path::Path,
 };
+use time::Date;
 
 /// 配置文件
 pub type Config = AHashMap<String, UserConf>;
@@ -65,7 +66,7 @@ impl UserConf {
                     return true;
                 } else {
                     let date = date.unwrap();
-                    let today = time::OffsetDateTime::now_local().unwrap().date();
+                    let today = get_today();
                     return today != date;
                 }
             }
@@ -123,4 +124,11 @@ pub fn get_config(path: impl AsRef<Path>) -> Result<Config> {
             path.display()
         ))
     }
+}
+
+pub fn get_today() -> Date {
+    let offset = time::UtcOffset::from_hms(8, 0, 0).unwrap();
+    let date = time::OffsetDateTime::now_utc().to_offset(offset);
+    let date = date.date();
+    return date;
 }

@@ -36,7 +36,7 @@ reqwest = { version = "0", features = ["cookies"] }
 anyhow = "1"
 # regex = { version = "1", features = ["std"] }
 ahash = { version = "*", features = ["std", "compile-time-rng", "serde"] }
-time = { version = "*", features = ["local-offset"] }
+time = { version = "*" }
 simple_logger = { version = "*", default-features = false, features = ["colors"] }
 
 [profile.release]

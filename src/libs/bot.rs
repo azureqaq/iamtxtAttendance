@@ -82,7 +82,7 @@ impl Session {
         // 更新状态
         {
             if text.contains("已连签") || text.contains("今天已经") {
-                let today = time::OffsetDateTime::now_local()?.date().to_string();
+                let today = crate::config::get_today().to_string();
                 let mut lock = status.lock().unwrap();
                 lock.insert(self.userconf.name().into(), (today, true));
                 return Ok(());
