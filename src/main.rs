@@ -15,7 +15,7 @@ async fn main() {
         .unwrap();
 
     match mma().await {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => log::error!("Error: {}", e),
     }
 }
@@ -32,6 +32,7 @@ async fn mma() -> Result<()> {
                 .long("uninstall")
                 .help("删除所有相关文件")
                 .action(clap::ArgAction::SetTrue)
+                .exclusive(true)
                 .num_args(0),
         )
         .arg(
@@ -40,6 +41,7 @@ async fn mma() -> Result<()> {
                 .help("初始化")
                 .action(clap::ArgAction::SetTrue)
                 .num_args(0)
+                .exclusive(true)
                 .conflicts_with("uninstall"),
         )
         .arg(
@@ -47,6 +49,7 @@ async fn mma() -> Result<()> {
                 .long("clean")
                 .help("清理垃圾")
                 .action(clap::ArgAction::SetTrue)
+                .exclusive(true)
                 .num_args(0)
                 .conflicts_with_all(&["uninstall", "init"]),
         )
@@ -54,6 +57,7 @@ async fn mma() -> Result<()> {
             Arg::new("att")
                 .short('a')
                 .long("att")
+                .exclusive(true)
                 .help("签到")
                 .action(clap::ArgAction::SetTrue)
                 .num_args(0)
