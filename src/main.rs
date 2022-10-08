@@ -15,7 +15,7 @@ async fn main() {
         .unwrap();
 
     match mma().await {
-        Ok(_) => log::debug!("Done!"),
+        Ok(_) => {},
         Err(e) => log::error!("Error: {}", e),
     }
 }
