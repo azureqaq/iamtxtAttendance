@@ -32,14 +32,14 @@ async fn mma() -> Result<()> {
                 .long("uninstall")
                 .help("删除所有相关文件")
                 .action(clap::ArgAction::SetTrue)
-                .num_values(0),
+                .num_args(0),
         )
         .arg(
             Arg::new("init")
                 .long("init")
                 .help("初始化")
                 .action(clap::ArgAction::SetTrue)
-                .num_values(0)
+                .num_args(0)
                 .conflicts_with("uninstall"),
         )
         .arg(
@@ -47,7 +47,7 @@ async fn mma() -> Result<()> {
                 .long("clean")
                 .help("清理垃圾")
                 .action(clap::ArgAction::SetTrue)
-                .num_values(0)
+                .num_args(0)
                 .conflicts_with_all(&["uninstall", "init"]),
         )
         .arg(
@@ -56,7 +56,7 @@ async fn mma() -> Result<()> {
                 .long("att")
                 .help("签到")
                 .action(clap::ArgAction::SetTrue)
-                .num_values(0)
+                .num_args(0)
                 .conflicts_with_all(&["uninstall", "clean", "init"]),
         )
         .get_matches();
