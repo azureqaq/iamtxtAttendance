@@ -25,7 +25,7 @@ log = "0"
 # console = "0"
 # dialoguer = "0"
 # scraper = "0"
-clap = {version = "3", features = ["wrap_help", "std", "color", "suggestions", "cargo"], default-features = false }
+clap = {version = "4", features = ["wrap_help", "std", "color", "suggestions", "cargo"], default-features = false }
 serde = {version = "*", features = ["derive"] }
 toml = "0"
 platform-dirs = "0"
