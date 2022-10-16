@@ -41,8 +41,7 @@ async fn mma() -> Result<()> {
                 .help("初始化")
                 .action(clap::ArgAction::SetTrue)
                 .num_args(0)
-                .exclusive(true)
-                .conflicts_with("uninstall"),
+                .exclusive(true),
         )
         .arg(
             Arg::new("clean")
@@ -50,8 +49,7 @@ async fn mma() -> Result<()> {
                 .help("清理垃圾")
                 .action(clap::ArgAction::SetTrue)
                 .exclusive(true)
-                .num_args(0)
-                .conflicts_with_all(&["uninstall", "init"]),
+                .num_args(0),
         )
         .arg(
             Arg::new("att")
@@ -60,8 +58,23 @@ async fn mma() -> Result<()> {
                 .exclusive(true)
                 .help("签到")
                 .action(clap::ArgAction::SetTrue)
-                .num_args(0)
-                .conflicts_with_all(&["uninstall", "clean", "init"]),
+                .num_args(0),
+        )
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .exclusive(true)
+                .help("查看配置文件内容")
+                .action(clap::ArgAction::SetTrue)
+                .num_args(0),
+        )
+        .arg(
+            Arg::new("status")
+                .long("status")
+                .exclusive(true)
+                .help("查看状态文件内容")
+                .action(clap::ArgAction::SetTrue)
+                .num_args(0),
         )
         .get_matches();
 
@@ -85,6 +98,18 @@ async fn mma() -> Result<()> {
         let config = libs::config::get_config(botdirs.config_path())?;
         libs::bot::att_now_all(config, status.clone()).await?;
         libs::status::save_status(status, botdirs.status_path())?;
+    } else if mat.get_flag("config") {
+        let config = libs::config::get_config(botdirs.config_path())?;
+        log::info!("配置文件: {}", botdirs.config_path().display());
+        for i in config.values() {
+            log::info!("{}-{}", i.name(), i.enable());
+        }
+    } else if mat.get_flag("status") {
+        log::info!("状态文件: {}", botdirs.status_path().display());
+        let status = libs::status::get_status(botdirs.status_path())?;
+        for (x, (y, z)) in status {
+            log::info!("{}-[{}]-{}", x, y, z);
+        }
     } else {
         return Err(anyhow::anyhow!("unreachable!"));
     }
