@@ -78,17 +78,30 @@ impl Session {
             .await?;
         let text = res.text().await?;
         // log::debug!(r#"签到结果[{}]: "{}""#, self.userconf.name(), &text);
+        let today = crate::config::get_today().to_string();
 
         // 更新状态
         {
             if text.contains("已连签") || text.contains("今天已经") {
-                let today = crate::config::get_today().to_string();
                 let mut lock = status.lock().unwrap();
                 lock.insert(self.userconf.name().into(), (today, true));
                 return Ok(());
             } else if text.contains("nolog") {
                 // log::warn!("{}, 登陆失败!", self.userconf.name());
-                return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
+                // 如果是true就跳过
+                let mut lock = status.lock().unwrap();
+                let old = lock.get(self.userconf.name());
+                if old.is_some() {
+                    let old = old.unwrap();
+                    if old.1 {
+                        return Ok(());
+                    } else {
+                        return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
+                    }
+                } else {
+                    lock.insert(self.userconf.name().into(), (today, false));
+                    return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
+                }
             } else {
                 // log::warn!("未处理的情况: {}", text);
                 return Err(anyhow!("未处理的情况: {}", text));
