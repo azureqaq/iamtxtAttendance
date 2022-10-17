@@ -101,15 +101,37 @@ async fn mma() -> Result<()> {
     } else if mat.get_flag("config") {
         let config = libs::config::get_config(botdirs.config_path())?;
         log::info!("配置文件: {}", botdirs.config_path().display());
+        let mut t_num = 0;
+        let config_len = config.len();
         for i in config.values() {
             log::info!("{}-{}", i.name(), i.enable());
+            if i.enable() {
+                t_num += 1;
+            }
         }
+        log::info!(
+            "{}个已启用，{}个已关闭，共{}个",
+            t_num,
+            config_len - t_num,
+            config_len
+        );
     } else if mat.get_flag("status") {
         log::info!("状态文件: {}", botdirs.status_path().display());
         let status = libs::status::get_status(botdirs.status_path())?;
-        for (x, (y, z)) in status {
+        let mut t_num = 0;
+        let status_len = status.len();
+        for (x, (y, z)) in &status {
             log::info!("{}-[{}]-{}", x, y, z);
+            if *z {
+                t_num += 1;
+            }
         }
+        log::info!(
+            "{}个已完成，{}个失败，共{}个",
+            t_num,
+            status_len - t_num,
+            status_len
+        );
     } else {
         return Err(anyhow::anyhow!("unreachable!"));
     }
