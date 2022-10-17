@@ -115,16 +115,23 @@ impl Session {
             let status = status.clone();
             match self.att_once(status).await {
                 Ok(_) => {
-                    log::info!("签到成功！{}", self.userconf.name());
+                    log::info!(
+                        "{}/{}签到成功！{}",
+                        i + 1,
+                        self.userconf.retry_times(),
+                        self.userconf.name()
+                    );
                     return Ok(());
                 }
-                Err(e) => {
+                Err(_e) => {
+                    /*
                     log::debug!(
                         "第{}/{}次尝试签到失败, error: {}",
                         i + 1,
                         self.userconf.retry_times(),
                         e
                     );
+                    */
                     continue;
                 }
             }
