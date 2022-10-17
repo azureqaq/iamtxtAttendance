@@ -96,11 +96,11 @@ impl Session {
                     if old.1 {
                         return Ok(());
                     } else {
-                        return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
+                        return Err(anyhow!("登陆失败!"));
                     }
                 } else {
                     lock.insert(self.userconf.name().into(), (today, false));
-                    return Err(anyhow!("{}, 登陆失败!", self.userconf.name()));
+                    return Err(anyhow!(" 登陆失败!"));
                 }
             } else {
                 // log::warn!("未处理的情况: {}", text);
