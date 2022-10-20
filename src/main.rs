@@ -62,6 +62,7 @@ async fn mma() -> Result<()> {
         )
         .arg(
             Arg::new("config")
+                .short('c')
                 .long("config")
                 .exclusive(true)
                 .help("查看配置文件内容")
@@ -70,6 +71,7 @@ async fn mma() -> Result<()> {
         )
         .arg(
             Arg::new("status")
+                .short('s')
                 .long("status")
                 .exclusive(true)
                 .help("查看状态文件内容")
