@@ -38,12 +38,17 @@ impl Session {
         Self { client, userconf }
     }
 
+    /// 用户设置
+    pub fn userconf(&self) -> &UserConf {
+        &self.userconf
+    }
+
     pub fn client(&self) -> &Client {
         &self.client
     }
 
     /// 登录
-    async fn login(&self) -> Result<()> {
+    pub async fn login(&self) -> Result<()> {
         let _res = self
             .client
             .post("https://www.iamtxt.com/e/member/doaction.php")
@@ -143,6 +148,27 @@ impl Session {
             self.userconf.name(),
             this_error
         ));
+    }
+
+    /// 查询积分
+    pub async fn get_info(&self) -> Result<String> {
+        let url = "https://www.iamtxt.com/e/member/cp/";
+        let html = self.client().get(url).send().await?.text().await?;
+        let re = regex::Regex::new(r#"\d+"#).unwrap();
+        for line in html.split("\n") {
+            let line = line.trim();
+            if line.contains(r#"点 ["#) {
+                let res = line.trim_end_matches(r#"点 ["#);
+                let res = re.captures(res).and_then(|e| e.get(0));
+                if res.is_none() {
+                    continue;
+                } else {
+                    let res = res.unwrap().as_str();
+                    return Ok(res.to_string() + "点 " + self.userconf.name());
+                }
+            }
+        }
+        Err(anyhow!("无法找到 {} 的积分信息", self.userconf.name()))
     }
 }
 
