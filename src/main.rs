@@ -78,6 +78,15 @@ async fn mma() -> Result<()> {
                 .action(clap::ArgAction::SetTrue)
                 .num_args(0),
         )
+        .arg(
+            Arg::new("info")
+                .short('i')
+                .long("info")
+                .exclusive(true)
+                .help("查询积分信息")
+                .action(clap::ArgAction::SetTrue)
+                .num_args(0),
+        )
         .get_matches();
 
     let botdirs = BotDirs::new()?;
@@ -134,6 +143,31 @@ async fn mma() -> Result<()> {
             status_len - t_num,
             status_len
         );
+    } else if mat.get_flag("info") {
+        log::info!("查询积分信息");
+        let config = libs::config::get_config(botdirs.config_path())?;
+        let mut handles = vec![];
+        for (_, v) in config.into_iter() {
+            handles.push(tokio::spawn(async move {
+                let session = libs::bot::get_session(v);
+                if session.login().await.is_err() {
+                    log::warn!("{} 登陆失败", session.userconf().name());
+                }
+                session.get_info().await
+            }))
+        }
+        for i in handles.into_iter() {
+            let i = i.await;
+            if i.is_ok() {
+                let i = i.unwrap();
+                match i {
+                    Ok(e) => log::info!("{e}"),
+                    Err(e) => log::warn!("{e}"),
+                }
+            } else {
+                log::error!("内部错误");
+            }
+        }
     } else {
         return Err(anyhow::anyhow!("unreachable!"));
     }
