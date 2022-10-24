@@ -148,6 +148,10 @@ async fn mma() -> Result<()> {
         let config = libs::config::get_config(botdirs.config_path())?;
         let mut handles = vec![];
         for (_, v) in config.into_iter() {
+            // 剔除未开启的
+            if !v.enable() {
+                continue;
+            }
             handles.push(tokio::spawn(async move {
                 let session = libs::bot::get_session(v);
                 if session.login().await.is_err() {
