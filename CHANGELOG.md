@@ -8,18 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
-## [0.2.2] - 2022-20-24
+## [0.2.3] - 2022-10-29
+### Fixed
+- `clippy` 优化
+
+
+## [0.2.2] - 2022-10-24
 ### Added
 - 加入 `CHANGELOG`
 
-## [0.2.1] - 2022-20-24
-### Add
+## [0.2.1] - 2022-10-24
+### Added
 - 信息优化
 
-### Fix
+### Fixed
 - 不再查询未开启的用户信息
 
-## v0.2.0
-- fix 不查询未开启的用户
-- fix 信息提示
+## v0.2.0 - 2022-10-24
+### Fixed
+- 不查询未开启的用户
+- 信息提示
 

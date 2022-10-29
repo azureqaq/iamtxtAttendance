@@ -90,7 +90,7 @@ impl Session {
             if text.contains("已连签") || text.contains("今天已经") {
                 let mut lock = status.lock().unwrap();
                 lock.insert(self.userconf.name().into(), (today, true));
-                return Ok(());
+                Ok(())
             } else if text.contains("nolog") {
                 // log::warn!("{}, 登陆失败!", self.userconf.name());
                 // 如果是true就跳过
@@ -99,17 +99,17 @@ impl Session {
                 if old.is_some() {
                     let old = old.unwrap();
                     if old.1 {
-                        return Ok(());
+                        Ok(())
                     } else {
-                        return Err(anyhow!("登陆失败!"));
+                        Err(anyhow!("登陆失败!"))
                     }
                 } else {
                     lock.insert(self.userconf.name().into(), (today, false));
-                    return Err(anyhow!(" 登陆失败!"));
+                    Err(anyhow!(" 登陆失败!"))
                 }
             } else {
                 // log::warn!("未处理的情况: {}", text);
-                return Err(anyhow!("未处理的情况: {}", text));
+                Err(anyhow!("未处理的情况: {}", text))
             }
         }
     }
@@ -143,11 +143,11 @@ impl Session {
                 }
             }
         }
-        return Err(anyhow!(
+        Err(anyhow!(
             "{}签到失败, error: {}",
             self.userconf.name(),
             this_error
-        ));
+        ))
     }
 
     /// 查询积分
@@ -155,7 +155,7 @@ impl Session {
         let url = "https://www.iamtxt.com/e/member/cp/";
         let html = self.client().get(url).send().await?.text().await?;
         let re = regex::Regex::new(r#"\d+"#).unwrap();
-        for line in html.split("\n") {
+        for line in html.split('\n') {
             let line = line.trim();
             if line.contains(r#"点 ["#) {
                 let res = line.trim_end_matches(r#"点 ["#);
@@ -174,8 +174,8 @@ impl Session {
 
 /// get a session
 pub fn get_session(userconf: UserConf) -> Session {
-    let ss = Session::new(userconf);
-    ss
+    
+    Session::new(userconf)
 }
 
 pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Result<()> {
@@ -202,10 +202,8 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
         if let Err(e) = ii {
             log::error!("can't await, error: {}", e);
             continue;
-        } else {
-            if let Err(e) = ii.unwrap() {
-                log::error!("{}", e);
-            }
+        } else if let Err(e) = ii.unwrap() {
+            log::error!("{}", e);
         }
     }
 

@@ -62,12 +62,11 @@ impl UserConf {
                     &stat.0,
                     &time::format_description::parse("[year]-[month]-[day]").unwrap(),
                 );
-                if date.is_err() {
-                    return true;
-                } else {
-                    let date = date.unwrap();
+                if let Ok(date) = date {
                     let today = get_today();
                     return today != date;
+                } else {
+                    return true;
                 }
             }
         } else if !self.enable() {
@@ -129,6 +128,6 @@ pub fn get_config(path: impl AsRef<Path>) -> Result<Config> {
 pub fn get_today() -> Date {
     let offset = time::UtcOffset::from_hms(8, 0, 0).unwrap();
     let date = time::OffsetDateTime::now_utc().to_offset(offset);
-    let date = date.date();
-    return date;
+
+    date.date()
 }

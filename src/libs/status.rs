@@ -16,13 +16,13 @@ pub fn get_status(path: impl AsRef<Path>) -> Result<StatusFile> {
             "无法解析!, 可以尝试删除文件后重试: {}",
             path.display()
         ))?;
-        return Ok(content);
+        Ok(content)
     } else {
         let content = StatusFile::new();
         let mut f = File::create(path).context(anyhow!("可能需要先init"))?;
         log::info!("crate file: {}", path.display());
         write!(f, "{}", serde_json::to_string(&content)?)?;
-        return Ok(content);
+        Ok(content)
     }
 }
 
@@ -32,7 +32,7 @@ pub fn save_status(content: Arc<Mutex<StatusFile>>, path: impl AsRef<Path>) -> R
     let buf = File::create(path).map(std::io::BufWriter::new)?;
     let res = serde_json::to_writer_pretty(buf, &content);
     if let Err(e) = res {
-        return Err(anyhow!("无法保存状态: {}, 错误: {}", path.display(), e));
+        Err(anyhow!("无法保存状态: {}, 错误: {}", path.display(), e))
     } else {
         // log::debug!("保存结果到: {}", path.display());
         Ok(())

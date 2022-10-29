@@ -2,7 +2,10 @@ use anyhow::Result;
 use clap::{crate_authors, crate_name, crate_version, Arg, Command};
 use libs::{botdir::BotDirs, status::get_status};
 use simple_logger::SimpleLogger;
-use std::sync::{Arc, Mutex};
+use std::{
+    process::exit,
+    sync::{Arc, Mutex},
+};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +19,10 @@ async fn main() {
 
     match mma().await {
         Ok(_) => {}
-        Err(e) => log::error!("Error: {}", e),
+        Err(e) => {
+            log::error!("Error: {}", e);
+            exit(101);
+        }
     }
 }
 
