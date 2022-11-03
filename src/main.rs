@@ -137,8 +137,8 @@ async fn mma() -> Result<()> {
         let status = libs::status::get_status(botdirs.status_path())?;
         let mut t_num = 0;
         let status_len = status.len();
-        for (x, (y, z)) in &status {
-            log::info!("{}-[{}]-{}", x, y, z);
+        for (x, (y, z, h)) in &status {
+            log::info!("{}-[{}]-{}-{}", x, y, z, h);
             if *z {
                 t_num += 1;
             }
