@@ -142,19 +142,12 @@ impl Session {
 
                 // 查看记录
                 // 本地记录是否成功
-                if !lock.get(self.userconf.name()).unwrap().1 {
+                if !lock.get(self.userconf.name()).unwrap().1
+                    || !lock.get(self.userconf.name()).unwrap().0.contains(&today)
+                {
                     let mut _is_ok = false;
                     // 如果没成功，直接更新数据
-                    if text.contains("已连签") || text.contains("今天已经") {
-                        _is_ok = true;
-                    } else {
-                        return Err(anyhow!("签到失败: {}", &text));
-                    }
-                    lock.insert(self.userconf.name().into(), (today, _is_ok, text));
-                } else if !lock.get(self.userconf.name()).unwrap().0.contains(&today) {
-                    let mut _is_ok = false;
-                    // 如果上次的成功了，但是不是今天
-                    // 直接更新
+                    // 或者成功了，但是不是今天
                     if text.contains("已连签") || text.contains("今天已经") {
                         _is_ok = true;
                     } else {
