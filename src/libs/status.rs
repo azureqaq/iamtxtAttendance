@@ -6,7 +6,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-pub type StatusFile = ahash::AHashMap<String, (String, bool)>;
+/// 状态文件
+///
+/// id，日期，是否签到成功，今天签到的结果
+pub type StatusFile = ahash::AHashMap<String, (String, bool, String)>;
 
 pub fn get_status(path: impl AsRef<Path>) -> Result<StatusFile> {
     let path = path.as_ref();
