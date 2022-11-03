@@ -116,7 +116,7 @@ impl Session {
 
     /// 尝试几次
     async fn att_times(&self, status: Arc<Mutex<StatusFile>>) -> Result<()> {
-        let mut this_error = String::new();
+        let mut this_err = String::new();
         for i in 0..self.userconf.retry_times() {
             let status = status.clone();
             match self.att_once(status).await {
@@ -130,15 +130,7 @@ impl Session {
                     return Ok(());
                 }
                 Err(e) => {
-                    /*
-                    log::debug!(
-                        "第{}/{}次尝试签到失败, error: {}",
-                        i + 1,
-                        self.userconf.retry_times(),
-                        e
-                    );
-                    */
-                    this_error = e.to_string();
+                    this_err = e.to_string();
                     continue;
                 }
             }
@@ -146,7 +138,7 @@ impl Session {
         Err(anyhow!(
             "{}签到失败, error: {}",
             self.userconf.name(),
-            this_error
+            this_err
         ))
     }
 
@@ -174,7 +166,6 @@ impl Session {
 
 /// get a session
 pub fn get_session(userconf: UserConf) -> Session {
-    
     Session::new(userconf)
 }
 
