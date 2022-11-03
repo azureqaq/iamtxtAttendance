@@ -10,7 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.4] - 2022-11-03
 ### Added
-- [ ] 记录连续签到次数
+- 记录连续签到次数
+
+### Changed
+- 升级到此版本，需要删除 `status` 文件
 
 
 ## [0.2.3] - 2022-10-29
