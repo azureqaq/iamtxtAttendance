@@ -86,38 +86,6 @@ impl Session {
         // 今天日期
         let today = crate::config::get_today().to_string();
 
-        // // 更新状态
-        // {
-        //     // 如果签到成功了
-        //     // 如果是连续签到，则保留
-        //     if text.contains("已连签") {
-        //         let mut lock = status.lock().unwrap();
-        //         lock.insert(self.userconf.name().into(), (today, true, text));
-        //         Ok(())
-        //     // 如果是重复签到，则不更新
-        //     } else if text.contains("今天已经") {
-        //         Ok(())
-        //     } else if text.contains("nolog") {
-        //         // 如果是true就跳过
-        //         let mut lock = status.lock().unwrap();
-        //         let old = lock.get(self.userconf.name());
-        //         if old.is_some() {
-        //             let old = old.unwrap();
-        //             if old.1 {
-        //                 Ok(())
-        //             } else {
-        //                 Err(anyhow!("登陆失败!"))
-        //             }
-        //         } else {
-        //             lock.insert(self.userconf.name().into(), (today, false, text));
-        //             Err(anyhow!(" 登陆失败!"))
-        //         }
-        //     } else {
-        //         // log::warn!("未处理的情况: {}", text);
-        //         Err(anyhow!("未处理的情况: {}", text))
-        //     }
-        // }
-
         // 更新状态
 
         {
@@ -130,13 +98,14 @@ impl Session {
                 // 如果成功，直接更新
                 if text.contains("已连签到") || text.contains("今天已经") {
                     _is_ok = true;
-                } else {
-                    return Err(anyhow!("签到失败: {}", &text));
                 }
                 // 如果失败，保持默认的false
 
                 // 写回
                 lock.insert(self.userconf.name().into(), (today, _is_ok, text));
+                if !_is_ok {
+                    return Err(anyhow!("签到失败"));
+                }
             } else {
                 // 如果有记录
 
@@ -150,16 +119,18 @@ impl Session {
                     // 或者成功了，但是不是今天
                     if text.contains("已连签") || text.contains("今天已经") {
                         _is_ok = true;
-                    } else {
-                        return Err(anyhow!("签到失败: {}", &text));
                     }
                     lock.insert(self.userconf.name().into(), (today, _is_ok, text));
+                    if !_is_ok {
+                        return Err(anyhow!("签到失败"));
+                    }
                 } else if lock.get(self.userconf.name()).unwrap().0.contains(&today) {
                     // 本地的今天的成功了
                     // 保持连续签到的记录
                     // 什么都不用做就好
                 } else {
                     log::warn!("未处理的情况: {}", text);
+                    return Err(anyhow!("未处理的情况"));
                 }
             }
         }
@@ -187,11 +158,7 @@ impl Session {
                 }
             }
         }
-        Err(anyhow!(
-            "{}签到失败, error: {}",
-            self.userconf.name(),
-            this_err
-        ))
+        Err(anyhow!("{}", this_err))
     }
 
     /// 查询积分
