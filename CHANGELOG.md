@@ -38,9 +38,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - 不再查询未开启的用户信息
-
-## v0.2.0 - 2022-10-24
-### Fixed
-- 不查询未开启的用户
-- 信息提示
-
