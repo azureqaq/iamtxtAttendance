@@ -83,6 +83,9 @@ impl Session {
             .await?;
         // 签到结果
         let text = res.text().await?;
+
+        // 打印结果
+        log::debug!("{}: {}", self.userconf.name(), text);
         // 今天日期
         let today = crate::config::get_today().to_string();
 
