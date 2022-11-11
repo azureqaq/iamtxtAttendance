@@ -220,10 +220,6 @@ pub async fn att_now_all(config: Config, status: Arc<Mutex<StatusFile>>) -> Resu
     Ok(())
 }
 
-pub async fn att_times(_config: Config, _status: Arc<Mutex<StatusFile>>) -> Result<()> {
-    Err(anyhow!("unimplemented!"))
-}
-
 /// 在状态文件中清理不存在的
 pub fn clean_stat(status: Arc<Mutex<StatusFile>>, config: Config) -> Result<()> {
     let mut res = vec![];
