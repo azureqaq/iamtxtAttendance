@@ -33,6 +33,15 @@ async fn mma() -> Result<()> {
         .author(crate_authors!())
         .arg_required_else_help(true)
         .subcommand_required(false)
+        .help_template(
+            "\
+{before-help}{name} {version}
+{author-with-newline}{about-with-newline}
+{usage-heading} {usage}
+
+{all-args}{after-help}
+",
+        )
         .arg(
             Arg::new("uninstall")
                 .long("uninstall")
