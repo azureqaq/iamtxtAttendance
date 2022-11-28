@@ -42,3 +42,6 @@
 ## 推荐的使用方法
 - 在操作系统中配置计划任务即可
 
+## Changelog
+- [changelog](/CHANGELOG)
+
