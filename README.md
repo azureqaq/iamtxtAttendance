@@ -3,7 +3,7 @@
 
 ## 环境
 - Windows 10 x86_64 / Linux x86_64 / macOS arm/x86_64 **可以直接下载最新[发行版](https://github.com/azureqaq/iamtxtAttendance/releases)**
-- macOS arm **需要自己编译**
+- Arm版本 **需要自己编译**
 
 ## 编译
 - 安装 `Rust`：[rust-lang](https://www.rust-lang.org/zh-CN/tools/install)
@@ -26,6 +26,8 @@
 - `--clean`：在记录状态的文件中删除不需要的
 - `--uninstall`：删除所有本工具在安装时创建的文件/文件夹
 - `--info`: 查询积分
+- `--config`: 查看配置信息
+- `--status`: 查看上次结果
 
 
 ## 配置文件
