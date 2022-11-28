@@ -1,3 +1,5 @@
+主页: [azureqaq's blog](https://azureqaq.github.io)
+
 # iamtxt签到工具
 - 使用 `Rust` 编写
 
